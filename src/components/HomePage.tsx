@@ -1,86 +1,93 @@
+// HomePage.tsx
 import React, { useState } from 'react';
-import { Typography, TextField, Button, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton } from '@material-ui/core';
-import { EditOutlined } from '@material-ui/icons';
-import { DeleteOutline } from '@material-ui/icons';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store/store';
+import {
+  Typography,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+} from '@material-ui/core';
+import { EditOutlined, DeleteOutline } from '@material-ui/icons';
+import { addTask, editTask, deleteTask } from '../store/tasksSlice';
 
-interface Item {
+interface Task {
   id: number;
   name: string;
 }
 
-const Home: React.FC = () => {
-  const [data, setData] = useState<Item[]>([]);
-  const [newItem, setNewItem] = useState('');
-  const [editItem, setEditItem] = useState<Item | null>(null);
+const HomePage: React.FC = () => {
+  const tasks = useSelector((state: RootState) => state.tasks.tasks);
+  const [newTask, setNewTask] = useState('');
+  const [editTaskId, setEditTaskId] = useState<number | null>(null);
+  const dispatch = useDispatch();
 
   const handleAdd = () => {
-    const newItemData: Item = {
-      id: Date.now(),
-      name: newItem,
-    };
-    setData([...data, newItemData]);
-    setNewItem('');
+    const taskId = tasks.length + 1;
+    dispatch(addTask({ id: taskId, name: newTask }));
+    setNewTask('');
   };
 
   const handleEdit = (id: number) => {
-    const itemToEdit = data.find((item) => item.id === id);
-    if (itemToEdit) {
-      setEditItem(itemToEdit);
-      setNewItem(itemToEdit.name);
+    const taskToEdit = tasks.find((task: Task) => task.id === id);
+    if (taskToEdit) {
+      setEditTaskId(taskToEdit.id);
+      setNewTask(taskToEdit.name);
     }
   };
 
   const handleUpdate = () => {
-    if (editItem) {
-      const updatedData = data.map((item) =>
-        item.id === editItem.id ? { ...item, name: newItem } : item
-      );
-      setData(updatedData);
-      setNewItem('');
-      setEditItem(null);
+    if (editTaskId) {
+      dispatch(editTask({ id: editTaskId, name: newTask }));
+      setEditTaskId(null);
+      setNewTask('');
     }
   };
 
   const handleDelete = (id: number) => {
-    const updatedData = data.filter((item) => item.id !== id);
-    setData(updatedData);
+    dispatch(deleteTask(id));
   };
 
   return (
-    <div style={styles.container}>
-      <Typography variant="h4" style={styles.heading}>
-        Home Page
+    <div>
+      <Typography variant="h4" gutterBottom>
+        Task List
       </Typography>
-
-      <div style={styles.inputContainer}>
-        <TextField
-          label="Enter a new item"
-          variant="outlined"
-          size="small"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          style={styles.input}
-        />
-        {editItem ? (
-          <Button variant="contained" color="primary" onClick={handleUpdate}>
-            Update
-          </Button>
-        ) : (
-          <Button variant="contained" color="primary" onClick={handleAdd}>
-            Add
-          </Button>
-        )}
-      </div>
-
-      <List style={styles.list}>
-        {data.map((item) => (
-          <ListItem key={item.id} style={styles.listItem}>
-            <ListItemText primary={item.name} />
+      <TextField
+        label="New Task"
+        value={newTask}
+        onChange={(e) => setNewTask(e.target.value)}
+      />
+      {editTaskId ? (
+        <Button variant="contained" color="primary" onClick={handleUpdate}>
+          Update
+        </Button>
+      ) : (
+        <Button variant="contained" color="primary" onClick={handleAdd}>
+          Add
+        </Button>
+      )}
+      <List>
+        {tasks.map((task: Task) => (
+          <ListItem key={task.id}>
+            <ListItemText primary={task.name} />
             <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(item.id)}>
+              <IconButton
+                edge="end"
+                aria-label="edit"
+                onClick={() => handleEdit(task.id)}
+              >
                 <EditOutlined />
               </IconButton>
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(item.id)}>
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDelete(task.id)}
+              >
                 <DeleteOutline />
               </IconButton>
             </ListItemSecondaryAction>
@@ -91,31 +98,4 @@ const Home: React.FC = () => {
   );
 };
 
-const styles = {
-  container: {
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-  },
-  heading: {
-    marginBottom: '10px',
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    marginBottom: '10px',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  input: {
-    marginRight: '10px',
-    width: '60%',
-  },
-  list: {
-    padding: 0,
-  },
-  listItem: {
-    marginBottom: '10px',
-    fontSize: '16px',
-  },
-};
-
-export default Home;
+export default HomePage;

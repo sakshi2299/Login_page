@@ -1,3 +1,4 @@
+// ButtonAppBar.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button } from '@material-ui/core';
@@ -9,7 +10,7 @@ const ButtonAppBar = () => {
         <Typography variant="h6" component="div">
           CRUD App
         </Typography>
-        <Button color="inherit" component={Link} to="/" >
+        <Button color="inherit" component={Link} to="/">
           Home
         </Button>
         <Button color="inherit" component={Link} to="/login">

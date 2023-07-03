@@ -1,47 +1,17 @@
-import React, { useState } from 'react';
 import { Button, TextField } from '@material-ui/core';
-import Cookies from 'universal-cookie';
+import React, { useState } from 'react';
+import { useAppDispatch } from '../store/store';
+import { loginUser } from '../store/userSlice';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const dispatch = useAppDispatch();
+
   const handleLogin = () => {
-    // Handle login logic here
     if (email && password) {
-      const storedData = getStoredRegistrationData();
-      if (storedData && storedData.password === password) {
-        console.log('Login successful!');
-        // Perform additional actions for successful login
-        // For example, you can redirect the user to the home page
-      } else {
-        console.log('Invalid email or password');
-        // Perform actions for invalid login attempt
-      }
-    }
-  };
-
-  const getStoredRegistrationData = (): { email: string; password: string } | null => {
-    const storageMethod = localStorage.getItem('storageMethod');
-    let storedDataString = '{}';
-
-    if (storageMethod == 'localStorage') {
-      storedDataString = localStorage.getItem('registrationData') || '{}';
-    } else if (storageMethod == 'sessionStorage') {
-      storedDataString = sessionStorage.getItem('registrationData') || '{}';
-    } else if (storageMethod == 'cookies') {
-      const cookies = new Cookies();
-      storedDataString = cookies.get('registrationData') || '{}';
-    }
-
-    try {
-      const storedData = JSON.parse(storedDataString);
-      const storedEmail = storedData?.email?.toLowerCase();
-
-      return storedEmail === email.toLowerCase() ? storedData : null;
-    } catch (error) {
-      console.log('Error parsing stored data:', error);
-      return null;
+      dispatch(loginUser({email:"test", password:"test"}));
     }
   };
 
